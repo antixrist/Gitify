@@ -176,6 +176,15 @@ class GitifyExtract extends Gitify
                 $catId = $data['category'];
                 $data['category'] = $this->getCategoryName($catId);
             }
+            
+            if($object instanceof modTemplate) {
+                $templateVars = $object->getTemplateVars();
+                $tvs = array();
+                foreach($templateVars as $tv) {
+                    $tvs[] = $tv->get('id');
+                }
+                $data['tvs'] = $tvs;
+            }
         }
 
         $data = $this->expandJSON($data);

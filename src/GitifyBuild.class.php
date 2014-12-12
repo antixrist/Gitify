@@ -257,6 +257,44 @@ class GitifyBuild extends Gitify
                 $catName = $data['category'];
                 $data['category'] = $this->getCategoryId($catName);
             }
+            
+            if($object instanceof modTemplate) {
+                $tvs = $data['tvs'];
+                // TV data is stored in a different table, so don't try to pass it to $object->fromArray();
+                unset($data['tvs']);
+                
+                $currentTVs = $object->getTemplateVars();
+                $ctvs = array();
+                foreach($currentTVs as $tv) {
+                    $ctvs[] = $tv->get('id');
+                    if(!in_array($tv->get('id'), $tvs)) {
+                        $templateVarTemplate = $this->modx->getObject('modTemplateVarTemplate',array(
+                            'tmplvarid' => $tv->get('id'),
+                            'templateid' => $object->get('id'),
+                        ));
+                        
+                        // this check is probably unnecessary
+                        if ($templateVarTemplate && $templateVarTemplate instanceof modTemplateVarTemplate) {
+                            $templateVarTemplate->remove();
+                        }
+                    }
+                }
+                
+                foreach ($tvs as $key => $tv) {                    
+                    /** @var modTemplateVarTemplate $templateVarTemplate */
+                    $templateVarTemplate = $this->modx->getObject('modTemplateVarTemplate',array(
+                        'tmplvarid' => $tv,
+                        'templateid' => $object->get('id'),
+                    ));
+                    if (empty($templateVarTemplate)) {
+                        $templateVarTemplate = $this->modx->newObject('modTemplateVarTemplate');
+                    }
+                    $templateVarTemplate->set('tmplvarid',$tv);
+                    $templateVarTemplate->set('templateid',$object->get('id'));
+                    $templateVarTemplate->set('rank',$key);
+                    $templateVarTemplate->save();
+                }
+            }
         }
 
         $object->fromArray($data, '', true, true);
