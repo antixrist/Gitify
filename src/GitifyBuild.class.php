@@ -176,6 +176,9 @@ class GitifyBuild extends Gitify
         foreach ($object->_fieldMeta as $field => $meta) {
             if (!isset($data[$field])) $data[$field] = $meta['default'];
         }
+        foreach($data['tvs'] as $key => $value) {
+            $object->setTVValue($key, $value);
+        }
         $object->fromArray($data, '', true, true);
 
         if ($object->save()) {

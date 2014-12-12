@@ -186,6 +186,15 @@ class GitifyExtract extends Gitify
                 $data['tvs'] = $tvs;
             }
         }
+        
+        if($object instanceof modResource) {
+            $templateVars = $object->getTemplateVars();
+            $tvs = array();
+            foreach($templateVars as $tv) {
+                $tvs[$tv->get('name')] = $tv->get('value');
+            }
+            $data['tvs'] = $tvs;                
+        }
 
         $data = $this->expandJSON($data);
 
